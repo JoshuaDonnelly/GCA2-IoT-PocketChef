@@ -1,9 +1,10 @@
 body {
     font-family: Arial, sans-serif;
-    background-color: #ffffffe3;
+    background-color: #f6f8fb;
     margin: 0;
     padding: 0;
 }
+
 header {
     display: flex;
     background-color: #ffffff;
@@ -13,12 +14,25 @@ header {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 .header-left {
-    padding-left: 40px;
+    align-content: center;
+    padding-left: 120px;
     justify-content: left;
+
 }
 .header-right {
+    padding-right: 120px;
     margin-left: auto;
     justify-content: right;
+}
+.header-search {
+    width: 300px;
+    background-color: white;
+    padding: 8px 12px;
+    border: 2px solid #ccc;
+    border-radius: 25px;
+    font-size: 16px;
+    outline: none;
+ 
 }
 .main-container {
     padding: 40px;
@@ -27,4 +41,14 @@ header {
 }
 .splash-message {
     margin: 100px;
+}
+a {
+    padding: 10px;
+    text-decoration: none;
+    color: #000000;
+}
+a:hover {
+    color: #555555;
+    transition: 0.3s;
+    text-decoration: underline;
 }
