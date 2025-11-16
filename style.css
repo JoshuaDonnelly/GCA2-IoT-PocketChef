@@ -1,0 +1,30 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #ffffffe3;
+    margin: 0;
+    padding: 0;
+}
+header {
+    display: flex;
+    background-color: #ffffff;
+    color: rgb(0, 0, 0);
+    padding: 10px 0;
+    border: 1px solid #d1d0d0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+.header-left {
+    padding-left: 40px;
+    justify-content: left;
+}
+.header-right {
+    margin-left: auto;
+    justify-content: right;
+}
+.main-container {
+    padding: 40px;
+    text-align: center;
+    align-self: center;
+}
+.splash-message {
+    margin: 100px;
+}
