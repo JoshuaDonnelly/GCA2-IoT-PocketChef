@@ -19,6 +19,11 @@ header {
     justify-content: left;
 
 }
+.header-left img {
+    height: 50px;
+    vertical-align: middle;
+    text-decoration: none;
+}
 .header-right {
     padding-right: 120px;
     margin-left: auto;
@@ -87,4 +92,72 @@ a:hover {
 .meat-type-selector img:hover {
     border: 2px solid #00ff0d83;
     transition: 0.3s;
+}
+.cooking-session {
+    padding-top: 50px;
+    display: flex;
+    align-self: center;
+    gap: 20px;
+    max-width: 1000px;
+    margin: 0 auto;
+    justify-content: center;
+}
+
+.cooking-session-image {
+    align-self: center;
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    width: 50%;
+}
+
+.cooking-session-image img {
+    width: 100%;
+    height: 300px;
+    object-fit: cover;
+}
+
+.cooking-session-title {
+    background: #2c3e50;
+    color: white;
+    padding: 15px;
+    text-align: center;
+}
+
+.cooking-session-panel {
+    background: white;
+    border-radius: 10px;
+    padding: 30px;
+    width: 50%;
+}
+
+.cooking-session-temp {
+    font-size: 48px;
+    margin: 20px 0;
+}
+
+.cooking-session-badge {
+    background: #ff6b35;
+    color: white;
+    padding: 5px 15px;
+    border-radius: 20px;
+    display: inline-block;
+}
+
+.cooking-session-timer {
+    font-size: 64px;
+    text-align: center;
+    margin: 40px 0;
+}
+
+.cooking-session-button {
+    background: #ff6b35;
+    color: white;
+    border: none;
+    padding: 15px 40px;
+    border-radius: 30px;
+    font-size: 16px;
+    cursor: pointer;
+    display: block;
+    margin: 0 auto;
 }
