@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}Meat Type{% endblock %}
+
+{% block content %}
+<div class="meat-type-container">
+  <div class="splash-message">
+    <h1>Select Your Meat Type</h1>
+    <p>Choose the type of meat you would like to cook today!</p>
+  </div>
+  <div class="meat_type_selection">
+    <a href="/cooking_session.html" class="meat-type-selector">
+      <img src="https://www.southernliving.com/thmb/-TWfCwlFHd-7DIzTIYXh2Zxr_f8=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/How_To_Grill_Chicken_010-e4aff40705b247868fe3fb6755e8bdd4.jpg" alt="Chicken Breast">
+      <p>Chicken Breast</p>
+    </a>
+  </div>
+  <div class="meat_type_selection">
+    <a href="/cooking_session.html" class="meat-type-selector">
+      <img src="https://berrymanfarms.ca/cdn/shop/products/berrymanfarms-chicken-whole-3-5-lbs-1266990088218_1024x1024.jpg?v=1569206574" alt="Whole Chicken">
+      <p>Whole Chicken</p>
+    </a>
+  </div>
+</div>
+{% endblock %}
