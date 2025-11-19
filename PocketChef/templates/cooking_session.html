@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block title %}Cooking Session{% endblock %}
+
+{% block content %}
+<div class="cooking-session">
+        <div class="cooking-session-image">
+            <img src="{{ image_url }}" alt="Chicken">
+            <div class="cooking-session-title">Chicken Breast (15 Mins)</div>
+        </div>
+
+        <div class="cooking-session-panel">
+            <div class="cooking-session-temp">🌡️ 165°F</div>
+            <span class="cooking-session-badge">Hot</span>
+            <div class="cooking-session-timer">15:00</div>
+            <button class="cooking-session-button">▶ Start</button>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,163 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f6f8fb;
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    display: flex;
+    background-color: #ffffff;
+    color: rgb(0, 0, 0);
+    padding: 10px 0;
+    border: 1px solid #d1d0d0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+.header-left {
+    align-content: center;
+    padding-left: 120px;
+    justify-content: left;
+
+}
+.header-left img {
+    height: 50px;
+    vertical-align: middle;
+    text-decoration: none;
+}
+.header-right {
+    padding-right: 120px;
+    margin-left: auto;
+    justify-content: right;
+}
+.header-search {
+    width: 300px;
+    background-color: white;
+    padding: 8px 12px;
+    border: 2px solid #ccc;
+    border-radius: 25px;
+    font-size: 16px;
+    outline: none;
+ 
+}
+.main-container {
+    padding: 40px;
+    text-align: center;
+    align-self: center;
+}
+.splash-message {
+    margin: 100px;
+}
+a {
+    padding: 10px;
+    text-decoration: none;
+    color: #000000;
+}
+a:hover {
+    color: #555555;
+    transition: 0.3s;
+    text-decoration: underline;
+}
+.base-meat-selector {
+    border: 1px solid #000000;
+    color: rgb(0, 0, 0);
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+}
+.meat-type-container {
+    text-align: center; 
+    align-self: center;
+}
+.meat_type_selection {
+    display: inline-block; 
+    vertical-align: top; 
+    margin: 10px; 
+    max-width: 300px;
+    max-height: 150px;
+}
+
+.meat-type-selector img {
+    border: 1px solid #000000;
+    width: 100%;
+    max-width: 300px;
+    max-height: 200px;
+    display: flex;
+    flex-direction: row;
+    margin: 0 auto;
+}
+.meat-type-selector img:hover {
+    border: 2px solid #00ff0d83;
+    transition: 0.3s;
+}
+.cooking-session {
+    padding-top: 50px;
+    display: flex;
+    align-self: center;
+    gap: 20px;
+    max-width: 1000px;
+    margin: 0 auto;
+    justify-content: center;
+}
+
+.cooking-session-image {
+    align-self: center;
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    width: 50%;
+}
+
+.cooking-session-image img {
+    width: 100%;
+    height: 300px;
+    object-fit: cover;
+}
+
+.cooking-session-title {
+    background: #2c3e50;
+    color: white;
+    padding: 15px;
+    text-align: center;
+}
+
+.cooking-session-panel {
+    background: white;
+    border-radius: 10px;
+    padding: 30px;
+    width: 50%;
+}
+
+.cooking-session-temp {
+    font-size: 48px;
+    margin: 20px 0;
+}
+
+.cooking-session-badge {
+    background: #ff6b35;
+    color: white;
+    padding: 5px 15px;
+    border-radius: 20px;
+    display: inline-block;
+}
+
+.cooking-session-timer {
+    font-size: 64px;
+    text-align: center;
+    margin: 40px 0;
+}
+
+.cooking-session-button {
+    background: #ff6b35;
+    color: white;
+    border: none;
+    padding: 15px 40px;
+    border-radius: 30px;
+    font-size: 16px;
+    cursor: pointer;
+    display: block;
+    margin: 0 auto;
+}
