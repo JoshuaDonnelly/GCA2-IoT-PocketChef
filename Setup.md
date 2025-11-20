@@ -24,14 +24,17 @@
 
 **Reminder:**
 Replace all placeholder keys in your Python files with your actual PubNub keys ("subscribe_key", "publish_key", "secret_key")
+    
     pnconfig.subscribe_key = "subscribe_key"
     pnconfig.publish_key = "publish_key"
     pnconfig.secret_key = "secret_key"
 
 Replace all "https://AWS:5000" lines in your Python files with your actual AWS IPV4
+    
     EC2_SERVER = "http://AWS:5000"
 
 **Run the server (token generator) in the background**
+    
     # Run pub_server.py in background
     python pub_server.py &
 
@@ -39,6 +42,7 @@ Replace all "https://AWS:5000" lines in your Python files with your actual AWS I
     disown
 
 **Run the subscriber (receiver) in the background**
+    
     # Run pub_receiver.py in background
     python pub_receiver.py &
 
@@ -46,15 +50,19 @@ Replace all "https://AWS:5000" lines in your Python files with your actual AWS I
     disown
 
 **Verify running Python processes**
+    
     ps aux | grep python
 
 Look for lines like:
+    
     ubuntu   12345  0.5  1.2 ... python pub_server.py
     ubuntu   12346  0.4  1.1 ... python pub_receiver.py
 
 **Stop the server or receiver**
+    
     # Kill the server
     kill 12345
 
     # Kill the receiver
     kill 12346
+
