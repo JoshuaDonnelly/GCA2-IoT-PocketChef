@@ -50,6 +50,7 @@ docs: add commit rules to README
 final fixes
 stuff works now
 update file
+
 ---
 # Merge Approval
 
@@ -69,7 +70,6 @@ A teammate must verify that:
 - The code runs and doesn’t break existing functionality.
 - The logic is clean and maintainable.
 - The changes match the project’s style and structure.
-- Tests pass (if the project has them).
 
 
 ## 4. Approval
