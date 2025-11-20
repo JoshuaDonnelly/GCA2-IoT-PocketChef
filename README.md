@@ -1,6 +1,12 @@
 ## ✅ Commit Rules (Read Before Committing)
 https://www.conventionalcommits.org/en/v1.0.0/
 
+# Table of Contents
+- **References:** [References](./references.md)
+- **Setup:** [Setup](./Setup.md)
+
+ --- 
+
 This project follows **Conventional Commits**.  
 Your commit message must clearly explain *what* changed and *why*.  
 If your commit message says things like "fix stuff", rewrite it.
