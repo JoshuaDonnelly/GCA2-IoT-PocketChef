@@ -1,4 +1,5 @@
 ## ✅ Commit Rules (Read Before Committing)
+### All "Root" commits are - Joshua Donnelly
 https://www.conventionalcommits.org/en/v1.0.0/
 
 # Table of Contents
