@@ -1,4 +1,8 @@
 from flask import Flask, render_template, request
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 import json
 import time
@@ -11,10 +15,10 @@ data = {}
 
 def get_db():
     return mysql.connector.connect (
-        host="localhost",
-        user="pocketchef",
-        password="KingClarke25#",
-        database="pocketchefdb"
+        host=os.getenv("DB_HOST"),
+        user=os.getenv("DB_USER"),
+        password=os.getenv("DB_PASS"),
+        database=os.getenv("DB_NAME")
     )
 @app.route("/test_db")
 def test_db():
