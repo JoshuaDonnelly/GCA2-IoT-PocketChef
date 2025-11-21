@@ -10,10 +10,16 @@
         </div>
 
         <div class="cooking-session-panel">
+            <div class="cooking-session-temp">𓍝 2.0 Kg</div>
             <div class="cooking-session-temp">🌡️ 165°F</div>
             <span class="cooking-session-badge">Hot</span>
-            <div class="cooking-session-timer">15:00</div>
-            <button class="cooking-session-button">▶ Start</button>
+            <div class="cooking-session-timer" id="timer">15:00</div>
+            <div class="timer-controls">
+                <button class="cooking-session-button" id="startStopBtn" onclick="toggleTimer()">▶ Start</button>
+                <button class="cooking-session-button" onclick="adjustTime(-1)">- 1 Min</button>
+                <button class="cooking-session-button" onclick="adjustTime(1)">+ 1 Min</button>
+            </div>
+            <button class="cooking-session-button save-button" onclick="saveCookingSession()">💾 Save Session</button>
         </div>
     </div>
 {% endblock %}

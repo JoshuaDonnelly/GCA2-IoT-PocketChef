@@ -2,16 +2,15 @@
 import sys
 import logging
 import os
+from dotenv import load_dotenv
 
 logging.basicConfig(stream=sys.stderr)
 
-# Ensure your project is on the Python path
+# Make sure project directory is on path
 sys.path.insert(0, "/var/www/PocketChef")
 
-# If your app uses environment variables, define them once here
-os.environ['TEST'] = 'test'
-os.environ['FACEBOOK_APP'] = 'Your facebook app id'
-os.environ['FACEBOOK_SECRET'] = 'Your facebook app secret'
+# Load environment variables
+load_dotenv("/var/www/PocketChef/.env")
 
-# Import the Flask application
 from PocketChef import app as application
+

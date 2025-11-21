@@ -150,14 +150,36 @@ a:hover {
     margin: 40px 0;
 }
 
+.timer-controls {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 20px;
+}
+
 .cooking-session-button {
     background: #ff6b35;
     color: white;
     border: none;
-    padding: 15px 40px;
+    padding: 15px 30px;
     border-radius: 30px;
     font-size: 16px;
     cursor: pointer;
-    display: block;
-    margin: 0 auto;
+    margin: 0;
+}
+
+.cooking-session-button:hover {
+    background: #e55a2b;
+    transition: 0.3s;
+}
+
+.save-button {
+    background: #4CAF50;
+    margin-top: 20px;
+    width: 100%;
+}
+
+.save-button:hover {
+    background: #45a049;
 }
