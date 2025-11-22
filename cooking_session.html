@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}Cooking Session{% endblock %}
+{% block content %}
+<div class="cooking-session">
+    <div class="cooking-session-image">
+        <img src="{{ image_url }}" alt="Chicken">
+        <div class="cooking-session-title">Chicken Breast (15 Mins)</div>
+    </div>
+
+    <div class="cooking-session-panel">
+        <div class="cooking-session-temp">𓍝 2.0 Kg</div>
+        <div class="cooking-session-temp">🌡️ 165°F</div>
+        <span class="cooking-session-badge">Hot</span>
+        <div class="cooking-session-timer" id="timer">15:00</div>
+        <div class="timer-controls">
+            <button class="cooking-session-button" id="startStopBtn" onclick="toggleTimer()">Start</button>
+            <button class="cooking-session-button" onclick="adjustTime(-1)">- 1 Min</button>
+            <button class="cooking-session-button" onclick="adjustTime(1)">+ 1 Min</button>
+        </div>
+        <button class="cooking-session-button save-button" onclick="saveCookingSession()">Save Session</button>
+    </div>
+</div>
+
+
+<script>
+async function saveCookingSession() {
+    // Get the current data from your cooking session
+    const sessionData = {
+        temperature: document.querySelector('.cooking-session-temp')?.innerText || '165°F',
+        timer_duration: document.getElementById('timer')?.innerText || '15:00',
+        food_type: document.querySelector('.cooking-session-title')?.innerText || 'Chicken Breast (15 Min)',
+        sessions_date_to_save: '1 Object',
+        session_data: '1 Object'
+    };
+
+    // Clean up the data (remove any % symbols)
+    sessionData.temperature = sessionData.temperature.replace('%', '').trim();
+    sessionData.timer_duration = formatTime(sessionData.timer_duration);
+
+    try {
+        const response = await fetch('/PocketChef/save_session.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams(sessionData)
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            alert('✅ Session saved successfully!');
+            console.log('Session saved with ID:', result.session_id);
+        } else {
+            alert('❌ Error saving session: ' + result.message);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('⚠️ Network error saving session');
+    }
+}
+
+// Helper function to format time (convert seconds to MM:SS)
+function formatTime(seconds) {
+    if (!seconds) return '00:00';
+
+    // If it's already in timer format, return as is
+    if (seconds.toString().includes(':')) return seconds;
+
+    // Convert seconds to MM:SS
+    const mins = Math.floor(parseInt(seconds) / 60);
+    const secs = parseInt(seconds) % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+}
+</script>
+{% endblock %}
