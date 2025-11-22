@@ -4,6 +4,7 @@
 **Import/Create pub_sender.py on Raspberry Pi**
 
 **Create & activate a Python virtual environment**
+Only for the AWS SSh
 
     # Navigate to your project folder
     cd ~/yourFolderHere
@@ -21,6 +22,11 @@
 
     # Install PubNub SDK and Flask
     pip install pubnub flask requests
+
+**On PI**
+**Install dependancies**
+
+    sudo pip3 install pubnub requests --break-system-packages
 
 **Reminder:**
 Replace all placeholder keys in your Python files with your actual PubNub keys ("subscribe_key", "publish_key", "secret_key")
@@ -49,6 +55,10 @@ Replace all "https://AWS:5000" lines in your Python files with your actual AWS I
     # Allow it to survive SSH disconnects
     disown
 
+**Run the Pi sender**
+
+    python pub_sender.py
+
 **Verify running Python processes**
     
     ps aux | grep python
@@ -65,4 +75,5 @@ Look for lines like:
 
     # Kill the receiver
     kill 12346
+
 
