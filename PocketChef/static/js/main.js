@@ -118,12 +118,3 @@ function adjustTime(minutes) {
   updateTimerDisplay();
 }
 
-function saveCookingSession() {
-  // TODO: Add database save logic here
-  alert('Cooking session saved!');
-  console.log('Session data to save:', {
-    timeRemaining: timerSeconds,
-    formattedTime: formatTime(timerSeconds),
-    timestamp: new Date().toISOString()
-  });
-}

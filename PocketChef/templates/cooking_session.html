@@ -20,6 +20,37 @@
                 <button class="cooking-session-button" onclick="adjustTime(1)">+ 1 Min</button>
             </div>
             <button class="cooking-session-button save-button" onclick="saveCookingSession()">💾 Save Session</button>
+            <div class="cooking-session-temp">
+                🌡️ {{ temp_data.temperature }}°C
+            </div>
         </div>
     </div>
+    <script>
+    function saveCookingSession() {
+	 const rawTemp = "{{ temp_data.temperature | default('') }}";
+    	 const tempValue = parseFloat(rawTemp);
+      	 const payload = {
+            device_id: "web-ui",
+            meat_type: "chicken",
+            target_temp: 75,
+            actual_temp: isNaN(tempValue) ? null : tempValue,
+            start_time: new Date().toISOString().slice(0, 19).replace("T", " "),
+            end_time: new Date().toISOString().slice(0, 19).replace("T", " "),
+            notes: "Saved from web UI"
+        };
+
+        fetch("/api/cooking_sessions", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        })
+        .then(res => {
+            if (!res.ok) throw new Error("Failed to save session");
+            return res.json();
+        })
+        .then(data => alert("Cooking session saved!"))
+        .catch(err => alert("Error saving session"));
+    }
+</script>
+
 {% endblock %}

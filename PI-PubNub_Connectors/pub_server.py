@@ -4,14 +4,16 @@ from pubnub.pnconfiguration import PNConfiguration
 from pubnub.models.consumer.v3.channel import Channel
 from pubnub.models.consumer.v3.group import Group
 from pubnub.models.consumer.v3.uuid import UUID
+import os
 
 app = Flask(__name__)
 
+
 # PubNub config
 pnconfig = PNConfiguration()
-pnconfig.subscribe_key = "subscribe_key" #
-pnconfig.publish_key = "publish_key" #
-pnconfig.secret_key = "secret_key" #
+pnconfig.subscribe_key = "sub-c-72118a46-881b-4c38-abd5-5a19c619592a"
+pnconfig.publish_key = "pub-c-0b280189-eca0-4ad4-9d6d-4f6ab038e2f7"
+pnconfig.secret_key = "sec-c-MzA5ZGU2OTctYzZkZi00ZDEyLWFlNWQtYTFmYTQ4ZWE2YmQ4"
 pnconfig.uuid = "ec2-server"
 pnconfig.ssl = True
 
@@ -53,4 +55,5 @@ def get_token(pi_uuid):
 
 if __name__ == "__main__":
     # Listen on all interfaces
-    app.run(host="0.0.0.0", port=5000)
+    app.run(host="0.0.0.0", port=4999)
+
