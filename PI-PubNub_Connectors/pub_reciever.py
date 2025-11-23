@@ -1,4 +1,3 @@
-
 import requests
 from pubnub.pubnub import PubNub
 from pubnub.pnconfiguration import PNConfiguration
@@ -7,7 +6,7 @@ import time
 
 CHANNEL = "raspi"
 UUID = "ec2-subscriber"
-TOKEN_SERVER = "http:/AWS:5000/get-token" #
+TOKEN_SERVER = "http://AWS:5000/get-token" #
 
 def get_read_token():
     resp = requests.get(f"{TOKEN_SERVER}/{UUID}")
@@ -36,4 +35,3 @@ pubnub.subscribe().channels(CHANNEL).execute()
 # Keep alive and refresh token if needed
 while True:
     time.sleep(1)
-
