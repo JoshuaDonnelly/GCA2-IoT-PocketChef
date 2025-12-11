@@ -3,29 +3,58 @@
 {% block title %}Cooking Session{% endblock %}
 
 {% block content %}
+<script src="static/js/session.js"></script>
 <div class="cooking-session">
+        <!--Meat Image-->
         <div class="cooking-session-image">
             <img src="{{ image_url }}" alt="Chicken">
             <div class="cooking-session-title">Chicken Breast (15 Mins)</div>
         </div>
 
         <div class="cooking-session-panel">
-            <div class="cooking-session-temp">𓍝 2.0 Kg</div>
-            <div class="cooking-session-temp">🌡️ 165°F</div>
-            <span class="cooking-session-badge">Hot</span>
+            <!--Metric Toggle-->
+            <div class = "toggleMetric">Metric System</div>
+            <label class="switch">
+                <input type="checkbox" checked onchange="toggleMetricSystem()">
+                <span class="slider round"></span>
+            </label>
+
+            <!--Weight Slider-->
+            <div class ="weightRange">Weight</div>
+            <div class="cooking-session-weight">
+                 <input id="weightSlider" class="weightSlider" type="range" min="0" max="10" step="0.1" value="1.0">
+            </div>
+            <div class="weightValue">
+              <span id="currentWeight"></span> Kg
+            </div>
+
+            <!--Desired Temperature Slider-->
+            <div class ="tempRange">Desired Temperature</div>
+            <div class="cooking-session-desired-temp">
+                 <input id="tempSlider" class="tempSlider" type="range" min="50" max="250" step="1" value="74.0">
+            </div>
+            <div class="tempValue">
+              <span id="currentTemp"></span> °C
+            </div>
+            
+
+            <span class="cooking-session-badge">Ideal Temp: 74 °C</span>
+
+            <!--Timer-->
             <div class="cooking-session-timer" id="timer">15:00</div>
+                <div class="timer-start">
+                    <button class="cooking-session-button" id="startStopBtn" onclick="toggleTimer()">▶ Start</button>
+                </div>
             <div class="timer-controls">
-                <button class="cooking-session-button" id="startStopBtn" onclick="toggleTimer()">▶ Start</button>
                 <button class="cooking-session-button" onclick="adjustTime(-1)">- 1 Min</button>
                 <button class="cooking-session-button" onclick="adjustTime(1)">+ 1 Min</button>
             </div>
+
+            <!--Save Session-->
             <button class="cooking-session-button save-button" onclick="saveCookingSession()">💾 Save Session</button>
-            <div class="cooking-session-temp">
-                🌡️ {{ temp_data.temperature }}°C
-            </div>
         </div>
-    </div>
-    <script>
+    </div> 
+<script>
     function saveCookingSession() {
 	 const rawTemp = "{{ temp_data.temperature | default('') }}";
     	 const tempValue = parseFloat(rawTemp);

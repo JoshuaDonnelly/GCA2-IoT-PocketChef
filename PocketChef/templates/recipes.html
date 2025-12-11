@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}Meat Type{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/recipes.css') }}">
+<body>
+    <h1 class="recipe-title">Need some Inspiration?</h1>
+    <h2 class = "recipe-subtitle">Choose from our selection of delicious recipes!</h2>
+    <div class="recipe-wrapper">
+        <div id="recipes-container"></div>
+    </div>
+    <script src="{{ url_for('static', filename='js/recipes.js') }}"></script>
+      {% endblock %}
+    
+</body>
+
