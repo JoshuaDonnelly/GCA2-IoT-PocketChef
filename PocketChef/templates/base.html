@@ -6,23 +6,28 @@
     <link rel="icon" href="/static/images/icon.jpg" />
     <title>{% block title %}{% endblock %}</title>
     <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.10.2.0.js"></script>
+    <script src="static/js/main.js"></script>
     <link rel="stylesheet" href="static/css/style.css">
   </head>
   <body>
     <header>
       <div class="header-left">
-        <a href="/">
+        <a href="/" class = "header-logo-link">
             <img src="/static/images/icon.jpg" alt="Logo" class="header-logo" />
         </a>
-        <a href="/recipes">Recipes</a>
-        <a href="/">New Challenges</a>
-        <a href="/">My Favourites</a>
+        {% if user %}
+          <span>Hi, {{ user.name }}!</span>
+          <a href="/logout" class="header-buttons">Logout</a>
+        {% else %}
+          <a href="/login" class="header-buttons">Login with Google</a>
+        {% endif %}
+        <a href="/recipes" class="header-buttons">Recipes</a>
+        <a href="/" class="header-buttons">My Favourites</a>
       </div>
       <div class="header-right">
         <input class="header-search" type="text" placeholder="Search..." />
       </div>
     </header>
-	<script src="{{ url_for('static', filename='js/main.js') }}"></script>
 
     <main>
       {% block content %}{% endblock %}

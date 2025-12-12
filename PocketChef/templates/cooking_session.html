@@ -4,14 +4,19 @@
 
 {% block content %}
 <script src="static/js/session.js"></script>
+
 <div class="cooking-session">
         <!--Meat Image-->
         <div class="cooking-session-image">
-            <img src="{{ image_url }}" alt="Chicken">
-            <div class="cooking-session-title">Chicken Breast (15 Mins)</div>
+            <img src="{{ image_url }}" alt="{{ meat_name }}">
+            <div class="cooking-session-title">{{ meat_name }}</div>
         </div>
 
         <div class="cooking-session-panel">
+            <div class="temp-display">
+                <span>Live Thermometer: </span>
+                <span id="temp">--</span> °C
+            </div>
             <!--Metric Toggle-->
             <div class = "toggleMetric">Metric System</div>
             <label class="switch">
@@ -52,34 +57,29 @@
 
             <!--Save Session-->
             <button class="cooking-session-button save-button" onclick="saveCookingSession()">💾 Save Session</button>
+
+            <!-- Add live thermometer display -->
+            
         </div>
-    </div> 
+    </div>
+
 <script>
-    function saveCookingSession() {
-	 const rawTemp = "{{ temp_data.temperature | default('') }}";
-    	 const tempValue = parseFloat(rawTemp);
-      	 const payload = {
-            device_id: "web-ui",
-            meat_type: "chicken",
-            target_temp: 75,
-            actual_temp: isNaN(tempValue) ? null : tempValue,
-            start_time: new Date().toISOString().slice(0, 19).replace("T", " "),
-            end_time: new Date().toISOString().slice(0, 19).replace("T", " "),
-            notes: "Saved from web UI"
-        };
-
-        fetch("/api/cooking_sessions", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload)
-        })
-        .then(res => {
-            if (!res.ok) throw new Error("Failed to save session");
-            return res.json();
-        })
-        .then(data => alert("Cooking session saved!"))
-        .catch(err => alert("Error saving session"));
-    }
+fetch('/pubnub_config')
+    .then(res => res.json())
+    .then(cfg => {
+        const pubnub = new PubNub({
+            subscribeKey: cfg.subscribe_key,
+            uuid: "web-client"
+        });
+        pubnub.addListener({
+            message: function(event) {
+                console.log("Message received:", event.message);
+                if (event.message && typeof event.message.temperature !== "undefined") {
+                    document.getElementById('temp').textContent = event.message.temperature;
+                }
+            }
+        });
+        pubnub.subscribe({ channels: [cfg.channel] });
+    });
 </script>
-
 {% endblock %}

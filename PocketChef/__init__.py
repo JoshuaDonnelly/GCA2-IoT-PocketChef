@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, redirect, url_for, session
 from dotenv import load_dotenv
 import os
 
@@ -7,12 +7,36 @@ load_dotenv()
 import json
 import time
 import mysql.connector
+from authlib.integrations.flask_client import OAuth
+from functools import wraps
 
 def create_app():
     app = Flask(__name__)
-
+    app.secret_key = os.getenv("SECRET_KEY", "dev-secret-key-change-in-production")
+    
+    pubsub = os.getenv("PUBNUB_SUBSCRIBE_KEY")
     alive = 0
     data = {}
+    
+    # OAuth setup, "Kwargs" basically an object of parameters (name, picture, etc.)
+    oauth = OAuth(app)
+    google = oauth.register(
+        name='google',
+        client_id=os.getenv("GOOGLE_CLIENT_ID"),
+        client_secret=os.getenv("GOOGLE_CLIENT_SECRET"),
+        server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
+        client_kwargs={'scope': 'openid email profile'}
+    )
+    
+    # Login required decorator, takes parameters and checks if user is logged in
+    # Allows us to use @login_required on routes
+    def login_required(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            if 'user' not in session:
+                return redirect(url_for('login'))
+            return f(*args, **kwargs)
+        return decorated_function
 
     def get_db():
         return mysql.connector.connect (
@@ -33,25 +57,60 @@ def create_app():
 
     @app.route("/")
     def index():
-        return render_template("index.html")
+        user = session.get('user')
+        return render_template("index.html", user=user)
 
     @app.route("/meat_type_selector")
     def meat_type_selector():
-        return render_template("meat_type_selector.html")
-    
-    @app.route("/recipes")
-    def recipes():
-        return render_template("recipes.html")
+        meat_type = request.args.get("type", "chicken")
+        user = session.get('user')
+        return render_template("meat_type_selector.html", meat_type=meat_type, user=user)
 
     @app.route("/cooking_session")
     def cooking_session():
         image_url = request.args.get("image", "")
+        meat_name = request.args.get("name", "Meat")
+        user = session.get('user')
+        return render_template("cooking_session.html", image_url=image_url, meat_name=meat_name, user=user)
+    
+    @app.route("/recipes")
+    def recipes():
+        user = session.get('user')
+        return render_template("recipes.html", user=user)
+    
+    @app.route("/login")
+    def login():
+        redirect_uri = url_for('authorize', _external=True)
+        return google.authorize_redirect(redirect_uri)
+
+    @app.route("/login/callback")
+    def authorize():
         try:
-            with open("latest_temp.json") as f:
-                temp_data = json.load(f)
-        except Exception:
-            temp_data = {"temperature": "N/A"}
-        return render_template("cooking_session.html", image_url=image_url, temp_data=temp_data)
+            token = google.authorize_access_token()
+            user_info = token.get('userinfo')
+            if user_info:
+                session['user'] = {
+                    'email': user_info['email'],
+                    'name': user_info.get('name', ''),
+                    'picture': user_info.get('picture', '')
+                }
+            return redirect(url_for('index'))
+        except Exception as e:
+            print(f"Login error: {e}")
+            return redirect(url_for('index'))
+
+    @app.route("/logout")
+    def logout():
+        session.pop('user', None)
+        return redirect(url_for('index'))
+
+    @app.route("/pubnub_config")
+    def pubnub_config():
+        config = {
+            "subscribe_key": pubsub,
+            "channel": "raspi"
+        }
+        return json.dumps(config)
 
     @app.route("/keep_alive")
     def keep_alive():
