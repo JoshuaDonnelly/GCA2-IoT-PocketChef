@@ -4,9 +4,10 @@ let pubnub;
 let appChannel = "johns-pi";
 
 // Timer variables
-let timerSeconds = 900; // 15 minutes in seconds
+
 let timerInterval = null;
 let isRunning = false;
+window.timerSeconds = 900; // Expose to global scope
 
 function time() {
   let d = new Date();
@@ -75,9 +76,11 @@ function formatTime(seconds) {
 
 function updateTimerDisplay() {
   const timerElement = document.getElementById('timer');
-  if (timerElement) {
-    timerElement.textContent = formatTime(timerSeconds);
-  }
+  if (!timerElement) return;
+  const mm = String(Math.floor(window.timerSeconds / 60)).padStart(2, '0');
+  const ss = String(window.timerSeconds % 60).padStart(2, '0');
+    timerElement.textContent = `${mm}:${ss}`;
+  
 }
 
 function toggleTimer() {

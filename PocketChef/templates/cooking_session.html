@@ -3,7 +3,7 @@
 {% block title %}Cooking Session{% endblock %}
 
 {% block content %}
-<script src="static/js/session.js"></script>
+<script src="{{ url_for('static', filename='js/session.js') }}"></script>
 
 <div class="cooking-session">
         <!--Meat Image-->
@@ -62,24 +62,121 @@
             
         </div>
     </div>
+<script id="loaded-session-data" type="application/json">
+  {{ loaded_session|default(none)|tojson }}
+</script>
 
 <script>
-fetch('/pubnub_config')
-    .then(res => res.json())
-    .then(cfg => {
-        const pubnub = new PubNub({
-            subscribeKey: cfg.subscribe_key,
-            uuid: "web-client"
-        });
-        pubnub.addListener({
-            message: function(event) {
-                console.log("Message received:", event.message);
-                if (event.message && typeof event.message.temperature !== "undefined") {
-                    document.getElementById('temp').textContent = event.message.temperature;
-                }
+const raw = document.getElementById('loaded-session-data').textContent.trim() || 'null';
+let loadedSession = null;
+try {
+  loadedSession = JSON.parse(raw);
+} catch (e) {
+  console.error("Failed to parse loadedSession JSON", e, raw);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  if (!loadedSession) return;
+
+  // weight
+  const weightSlider = document.getElementById('weightSlider');
+  if (weightSlider && loadedSession.weight != null) {
+    weightSlider.value = loadedSession.weight;
+    if (typeof window.updateWeightDisplay === "function") {
+      window.updateWeightDisplay();
+    }
+  }
+
+  // desired temp
+  const tempSlider = document.getElementById('tempSlider');
+  if (tempSlider && loadedSession.desired_temp != null) {
+    tempSlider.value = loadedSession.desired_temp;
+    if (typeof window.updateTempDisplay === "function") {
+      window.updateTempDisplay();
+    }
+  }
+
+  // metric toggle
+   if (typeof window.setMetricMode === "function" &&
+      typeof loadedSession.is_metric !== "undefined") {
+    window.setMetricMode(!!loadedSession.is_metric);
+  }
+
+  // timer
+  if (typeof loadedSession.timer_seconds === "number") {
+    window.timerSeconds = loadedSession.timer_seconds;
+    if (typeof window.updateTimerDisplay === "function") {
+      window.updateTimerDisplay();
+    }
+  }
+});
+</script>
+<script>    
+    function saveCookingSession() {
+        console.log("DEBUG: saveCookingSession called");
+        
+        // Parse live temperature for payload
+        const rawTemp = (document.getElementById('temp').textContent || '').trim();
+        const tempValue = parseFloat(rawTemp);
+
+        //Parse weight for payload
+        const weightSlider = document.getElementById('weightSlider');
+        const weight = weightSlider ? parseFloat(weightSlider.value): null;
+
+        //Parse desired temp for payload
+        const tempSlider = document.getElementById('tempSlider');
+        const desiredTemp = tempSlider ? parseFloat(tempSlider.value): null;
+
+        // Parse if metric system is used
+        const checkBox = document.querySelector('.switch input').checked;
+        const isMetric = checkBox ? true : false; //true is metric, false is imperial
+
+        const idealTemp = 74; //Hardcoded for now
+
+        const timerSeconds = typeof window.timerSeconds === "number" ? window.timerSeconds : 0;
+
+        const imageUrl = "{{ image_url|default('') }}"
+        
+        const payload = {
+            device_id: "web-ui",
+            meat_type: "{{ meat_name }}",
+            image_url: imageUrl,
+            target_temp: idealTemp,
+            actual_temp: isNaN(tempValue) ? null : tempValue,
+            start_time: new Date().toISOString().slice(0, 19).replace("T", " "),
+            end_time: new Date().toISOString().slice(0, 19).replace("T", " "),
+            notes: "Saved from web UI",
+            weight: isNaN(weight) ? null : weight,
+            desired_temp: isNaN(desiredTemp) ? null : desiredTemp,
+            is_metric: isMetric,
+            timer_seconds: timerSeconds
+        };
+        
+        console.log("DEBUG: Payload:", payload);
+
+        fetch("/api/cooking_sessions", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        })
+        .then(res => {
+            console.log("DEBUG: Response status:", res.status);
+            if (!res.ok) {
+                return res.text().then(text => {
+                    console.error("DEBUG: Error response:", text);
+                    throw new Error(`Failed to save session: ${res.status} - ${text}`);
+                });
             }
+            return res.json();
+        })
+        .then(data => {
+            console.log("DEBUG: Success response:", data);
+            alert("Cooking session saved!");
+        })
+        .catch(err => {
+            console.error("DEBUG: Fetch error:", err);
+            alert("Error saving session: " + err.message);
         });
-        pubnub.subscribe({ channels: [cfg.channel] });
-    });
+    }
 </script>
 {% endblock %}

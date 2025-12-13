@@ -1,3 +1,4 @@
+
 document.addEventListener('DOMContentLoaded', function() {
   const weightSlider = document.getElementById('weightSlider');
   const weightOutput = document.getElementById('currentWeight');
@@ -37,11 +38,24 @@ document.addEventListener('DOMContentLoaded', function() {
   updateWeightDisplay();
   updateTempDisplay();
 
-  window.toggleMetricSystem = function() {
-    isMetric = !isMetric;
+  // EXPOSE to global so cooking_session.html can call them
+  window.updateWeightDisplay = updateWeightDisplay;
+  window.updateTempDisplay = updateTempDisplay;
+
+  // New: set explicit metric/imperial mode
+  window.setMetricMode = function(flag) {
+    isMetric = !!flag;
+    const metricCheckbox = document.querySelector('.switch input[type="checkbox"]');
+    if (metricCheckbox) {
+      metricCheckbox.checked = isMetric;
+    }
     weightRangeDiv.textContent = isMetric ? 'Weight (Kg):' : 'Weight (lbs):';
-    // Update both displays
     updateWeightDisplay();
     updateTempDisplay();
+  };
+
+  // Toggle from checkbox
+  window.toggleMetricSystem = function() {
+    window.setMetricMode(!isMetric);
   };
 });

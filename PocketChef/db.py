@@ -1,5 +1,6 @@
 from mysql.connector import pooling, Error
 import os
+import logging
 
 POOL = None
 
@@ -20,42 +21,44 @@ def init_db_pool():
     return POOL
 
 def get_conn():
-    """Return a connection from the pool."""
     global POOL
     if POOL is None:
         init_db_pool()
     return POOL.get_connection()
 
 def save_cooking_session(session):
-    """
-    session: dict with keys:
-      device_id (str), meat_type (str), target_temp (float), actual_temp (float),
-      start_time (str/datetime), end_time (str/datetime), notes (str)
-    Returns inserted id.
-    """
     sql = """
-    INSERT INTO cooking_sessions
-      (device_id, meat_type, target_temp, actual_temp, start_time, end_time, notes)
-    VALUES (%s, %s, %s, %s, %s, %s, %s)
+        INSERT INTO cooking_sessions
+            (user_email, device_id, meat_type, image_url, target_temp, actual_temp,
+             start_time, end_time, notes,
+             weight, is_metric, desired_temp, timer_seconds)
+        VALUES (%s, %s, %s, %s, %s, %s,
+                %s, %s, %s,
+                %s, %s, %s, %s)
     """
-    conn = None
+    conn = get_conn()
     try:
-        conn = get_conn()
-        cursor = conn.cursor()
-        cursor.execute(sql, (
+        cur = conn.cursor()
+        cur.execute(sql, (
+            session.get("user_email"),
             session.get("device_id"),
             session.get("meat_type"),
+            session.get("image_url"),
             session.get("target_temp"),
             session.get("actual_temp"),
             session.get("start_time"),
             session.get("end_time"),
-            session.get("notes")
+            session.get("notes"),
+            session.get("weight"),
+            1 if session.get("is_metric", True) else 0,
+            session.get("desired_temp"),
+            session.get("timer_seconds"),
         ))
         conn.commit()
-        inserted_id = cursor.lastrowid
-        cursor.close()
+        inserted_id = cur.lastrowid
+        cur.close()
         return inserted_id
-    except Error as e:
+    except Error:
         if conn:
             conn.rollback()
         raise
@@ -63,19 +66,51 @@ def save_cooking_session(session):
         if conn:
             conn.close()
 
-def list_sessions(limit=100, offset=0):
+def list_sessions(user_email=None, limit=100, offset=0):
     sql = """
-    SELECT id, device_id, meat_type, target_temp, actual_temp, start_time, end_time, notes, created_at
+    SELECT id, user_email, device_id, meat_type, image_url, target_temp, actual_temp,
+           start_time, end_time, notes,
+           weight, is_metric, desired_temp, timer_seconds
     FROM cooking_sessions
-    ORDER BY created_at DESC
-    LIMIT %s OFFSET %s
     """
+    params = []
+    if user_email:
+        sql += " WHERE user_email = %s"
+        params.append(user_email)
+
+    sql += " ORDER BY start_time DESC LIMIT %s OFFSET %s"
+    params.extend([limit, offset])
+
     conn = get_conn()
     try:
         cursor = conn.cursor(dictionary=True)
-        cursor.execute(sql, (limit, offset))
+        cursor.execute(sql, tuple(params))
         rows = cursor.fetchall()
         cursor.close()
         return rows
+    finally:
+        conn.close()
+
+
+def get_session(session_id, user_email=None):
+    sql = """
+    SELECT id, user_email, device_id, meat_type, image_url, target_temp, actual_temp,
+           start_time, end_time, notes,
+           weight, is_metric, desired_temp, timer_seconds
+    FROM cooking_sessions
+    WHERE id = %s
+    """
+    params = [session_id]
+    if user_email:
+        sql += " AND user_email = %s"
+        params.append(user_email)
+
+    conn = get_conn()
+    try:
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute(sql, tuple(params))
+        row = cursor.fetchone()
+        cursor.close()
+        return row
     finally:
         conn.close()

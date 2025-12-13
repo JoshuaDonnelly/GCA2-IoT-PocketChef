@@ -3,17 +3,17 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="icon" href="/static/images/icon.jpg" />
+    <link rel="icon" href="{{ url_for('static', filename='images/icon.jpg') }}" />
     <title>{% block title %}{% endblock %}</title>
     <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.10.2.0.js"></script>
-    <script src="static/js/main.js"></script>
-    <link rel="stylesheet" href="static/css/style.css">
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
   </head>
   <body>
     <header>
       <div class="header-left">
         <a href="/" class = "header-logo-link">
-            <img src="/static/images/icon.jpg" alt="Logo" class="header-logo" />
+            <img src="{{ url_for('static', filename='images/icon.jpg') }}" alt="Logo" class="header-logo" />
         </a>
         {% if user %}
           <span>Hi, {{ user.name }}!</span>
@@ -25,7 +25,9 @@
         <a href="/" class="header-buttons">My Favourites</a>
       </div>
       <div class="header-right">
-        <input class="header-search" type="text" placeholder="Search..." />
+        {% if user %}
+        <a href="/my_sessions" class="header-buttons">My Sessions</a>
+        {% endif %}
       </div>
     </header>
 

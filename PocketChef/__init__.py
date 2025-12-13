@@ -9,6 +9,7 @@ import time
 import mysql.connector
 from authlib.integrations.flask_client import OAuth
 from functools import wraps
+from .db import init_db_pool, save_cooking_session, list_sessions, get_session
 
 def create_app():
     app = Flask(__name__)
@@ -122,7 +123,7 @@ def create_app():
         return str(parsed_json)
 
     # Import and register database routes
-    from .db import init_db_pool, save_cooking_session, list_sessions
+    
     init_db_pool()
 
     @app.route("/api/cooking_sessions", methods=["POST"])
@@ -133,6 +134,9 @@ def create_app():
 
         if not data.get("device_id"):
             return jsonify({"error": "device_id required"}), 400
+        
+        user = session.get('user')
+        data["user_email"] = user['email'] if user else None
 
         try:
             inserted_id = save_cooking_session(data)
@@ -146,8 +150,30 @@ def create_app():
     def api_list_sessions():
         limit = int(request.args.get("limit", 50))
         offset = int(request.args.get("offset", 0))
-        rows = list_sessions(limit=limit, offset=offset)
+        user = session.get("user")
+        rows = list_sessions(user_email=user['email'] if user else None, limit=limit, offset=offset)
         return jsonify(rows)
+    @app.route("/my_sessions")
+    @login_required
+    def my_sessions_page():
+        return render_template("my_sessions.html", user=session.get("user"))
+
+    @app.route("/session/<int:session_id>")
+    @login_required
+    def load_session(session_id):
+        user = session.get("user")
+        row = get_session(session_id, user_email=user["email"])
+        if not row:
+            return redirect(url_for("my_sessions_page"))
+
+        return render_template(
+            "cooking_session.html",
+            image_url=row.get("image_url") or "",
+            meat_name=row["meat_type"],
+            user=user,
+            loaded_session=row
+        )
+    
 
     return app
 
