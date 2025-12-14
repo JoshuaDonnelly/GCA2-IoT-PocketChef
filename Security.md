@@ -54,7 +54,9 @@ strict certification validation.
 - We also only used google login for security reasons as without that we would run into issues such as:
   
 SQL Bruteforce/Injection attacks.
+
 Incomplete info being entered into the system.
+
 Crashes occuring from unexpected character inputs.
 
 # Data in transit
