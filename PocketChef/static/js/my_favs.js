@@ -10,9 +10,6 @@ document.addEventListener('DOMContentLoaded', function() {
     let mealsData = [];
     let activeSort = 'random';
 
-    // default: localStorage favourites
-    let favorites = new Set(JSON.parse(localStorage.getItem('favoriteMeals') || '[]'));
-
     
     let currentUser = null;
     try {
@@ -22,20 +19,20 @@ document.addEventListener('DOMContentLoaded', function() {
             currentUser = JSON.parse(txt);
         }
     } catch (e) {
-        console.error('Failed to parse user-data JSON', e);
         currentUser = null;
     }
     const isLoggedIn = !!(currentUser && currentUser.email);
 
+    let favorites = new Set();
 
         function loadFavorites() {
-        // Not logged in: just use localStorage
+        // not logged in -> use localStorage only
         if (!isLoggedIn) {
             favorites = new Set(JSON.parse(localStorage.getItem('favoriteMeals') || '[]'));
             return Promise.resolve();
         }
 
-        // Logged in: load from backend
+        // logged in -> load from backend
         return fetch('/api/favorites')
             .then(r => {
                 if (!r.ok) {
@@ -46,14 +43,12 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(rows => {
                 favorites = new Set(rows.map(r => String(r.meal_id)));
             })
-            .catch(err => {
-                console.error('Failed to load favourites from API', err);
+            .catch(() => {
                 favorites = new Set();
             });
     }
 
-    function saveFavorites() {
-        // Only used for guests (localStorage)
+    function saveFavoritesLocal() {
         if (!isLoggedIn) {
             localStorage.setItem('favoriteMeals', JSON.stringify(Array.from(favorites)));
         }
@@ -68,12 +63,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function createCard(meal) {
         const div = document.createElement('div');
-        const id = meal.idMeal ? String(meal.idMeal) : null;
-        const isFav = id && favorites.has(id);
+        const id = String(meal.idMeal);
 
         div.className = 'recipe-card';
         div.innerHTML = `
-            <button class="fav-btn ${isFav ? 'is-fav' : ''}" type="button" aria-label="Toggle favourite">
+            <button class="fav-btn is-fav" type="button" aria-label="Remove favourite">
                 ♥
             </button>
             <img src="${meal.strMealThumb}" alt="${meal.strMeal}" loading="lazy">
@@ -88,47 +82,70 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // open TheMealDB on card click
         div.addEventListener('click', () => {
-            if (meal.idMeal) {
-                window.open(`https://www.themealdb.com/meal.php?c=${meal.idMeal}`, '_blank');
-            }
+            window.open(`https://www.themealdb.com/meal.php?c=${id}`, '_blank');
         });
 
+        // remove from favourites
         const favBtn = div.querySelector('.fav-btn');
-        if (favBtn && id) {
-            favBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-
-                const isCurrentlyFav = favorites.has(id);
-
-                if (isLoggedIn) {
-                    // send to backend for logged-in users
-                    const method = isCurrentlyFav ? 'DELETE' : 'POST';
-                    fetch(`/api/favorites/${id}`, { method })
-                        .then(res => {
-                            if (!res.ok) throw new Error('Failed favourite update');
-                            if (isCurrentlyFav) {
-                                favorites.delete(id);
-                            } else {
-                                favorites.add(id);
-                            }
-                            favBtn.classList.toggle('is-fav', favorites.has(id));
-                        })
-                        .catch(err => console.error(err));
-                } else {
-                    // guest: keep in localStorage only
-                    if (isCurrentlyFav) {
-                        favorites.delete(id);
-                    } else {
-                        favorites.add(id);
+        favBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            fetch(`/api/favorites/${id}`, { method: 'DELETE' })
+                .then(res => {
+                    if (!res.ok) throw new Error('Failed favourite update');
+                    div.remove();
+                    updateCount();
+                    if (!container.querySelector('.recipe-card')) {
+                        container.textContent = 'You have no favourite recipes yet.';
                     }
-                    saveFavorites();
-                    favBtn.classList.toggle('is-fav', favorites.has(id));
-                }
-            });
-        }
+                })
+                .catch(err => console.error(err));
+        });
 
         container.appendChild(div);
     }
+
+    function updateCount() {
+        const n = container.querySelectorAll('.recipe-card').length;
+        resultsCount.textContent = `${n} favourite(s)`;
+    }
+
+    function loadFavorites() {
+        fetch('/api/favorites')
+            .then(r => {
+                if (!r.ok) throw new Error('Favorites API returned ' + r.status);
+                return r.json();
+            })
+            .then(rows => {
+                if (!rows.length) {
+                    resultsCount.textContent = '0 favourite(s)';
+                    container.textContent = 'You have no favourite recipes yet.';
+                    return;
+                }
+
+                const ids = rows.map(r => r.meal_id);
+                return Promise.all(
+                    ids.map(id =>
+                        fetch(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${id}`)
+                            .then(r => r.json())
+                            .then(d => (d.meals && d.meals[0]) || null)
+                    )
+                ).then(meals => {
+                    const valid = meals.filter(Boolean);
+                    valid.forEach(createCard);
+                    updateCount();
+                });
+            })
+            .catch(err => {
+                console.error(err);
+                container.textContent = 'Failed to load favourite recipes.';
+            });
+    }
+
+    loadFavorites();
+
+
+        container.appendChild(div);
+    
 
     function applyFilters(list) {
         const q = (searchInput.value || '').trim().toLowerCase();
@@ -210,6 +227,7 @@ document.addEventListener('DOMContentLoaded', function() {
             container.textContent = 'Failed to load recipes.';
         });
 
+    // tab/tap handling
     if (tabs) {
         tabs.addEventListener('click', (e) => {
             const btn = e.target.closest('button[data-sort]');
@@ -220,6 +238,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // filter events
     [searchInput, areaSelect, categorySelect].forEach(el => {
         if (!el) return;
         el.addEventListener('input', () => renderMeals());

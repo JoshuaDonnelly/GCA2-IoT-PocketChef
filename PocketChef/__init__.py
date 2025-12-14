@@ -9,7 +9,8 @@ import time
 import mysql.connector
 from authlib.integrations.flask_client import OAuth
 from functools import wraps
-from .db import init_db_pool, save_cooking_session, list_sessions, get_session
+from .db import init_db_pool, save_cooking_session, list_sessions, get_session, \
+    add_favorite, remove_favorite, list_favorites
 
 def create_app():
     app = Flask(__name__)
@@ -78,7 +79,35 @@ def create_app():
     def recipes():
         user = session.get('user')
         return render_template("recipes.html", user=user)
-    
+  
+   
+    @app.route("/my_favs")
+    @login_required
+    def my_favs_page():
+        user = session.get("user") or {}
+        current_user_email = user.get("email")
+        return render_template("my_favs.html", current_user_email=current_user_email)
+
+
+    @app.route("/api/favorites", methods=["GET"])
+    @login_required
+    def api_get_favorites():
+        user = session.get("user")
+        rows = list_favorites(user["email"])
+        return jsonify(rows)
+
+    @app.route("/api/favorites/<meal_id>", methods=["POST", "DELETE"])
+    @login_required
+    def api_update_favorite(meal_id):
+        user = session.get("user")
+        email = user["email"]
+        if request.method == "POST":
+            add_favorite(email, meal_id)
+            return jsonify({"status": "added"})
+        else:
+            remove_favorite(email, meal_id)
+            return jsonify({"status": "removed"})
+        
     @app.route("/login")
     def login():
         redirect_uri = url_for('authorize', _external=True)

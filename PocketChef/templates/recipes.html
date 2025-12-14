@@ -37,7 +37,9 @@
         </div>
         <div id="recipes-container" class="recipes-grid"></div>
     </div>
-
+    <script id="user-data" type="application/json">
+        {{ user|default(none)|tojson }}
+    </script>
     <script src="{{ url_for('static', filename='js/recipes.js') }}"></script>
 {% endblock %}
 

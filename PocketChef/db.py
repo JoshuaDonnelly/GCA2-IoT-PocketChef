@@ -114,3 +114,36 @@ def get_session(session_id, user_email=None):
         return row
     finally:
         conn.close()
+def add_favorite(user_email, meal_id):
+    sql = "INSERT IGNORE INTO favorite_recipes (user_email, meal_id) VALUES (%s, %s)"
+    conn = get_conn()
+    try:
+        cur = conn.cursor()
+        cur.execute(sql, (user_email, meal_id))
+        conn.commit()
+        cur.close()
+    finally:
+        conn.close()
+
+def remove_favorite(user_email, meal_id):
+    sql = "DELETE FROM favorite_recipes WHERE user_email = %s AND meal_id = %s"
+    conn = get_conn()
+    try:
+        cur = conn.cursor()
+        cur.execute(sql, (user_email, meal_id))
+        conn.commit()
+        cur.close()
+    finally:
+        conn.close()
+
+def list_favorites(user_email):
+    sql = "SELECT meal_id FROM favorite_recipes WHERE user_email = %s"
+    conn = get_conn()
+    try:
+        cur = conn.cursor(dictionary=True)
+        cur.execute(sql, (user_email,))
+        rows = cur.fetchall()
+        cur.close()
+        return rows
+    finally:
+        conn.close()
