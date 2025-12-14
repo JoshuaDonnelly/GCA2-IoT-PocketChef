@@ -1,25 +1,151 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Example: Get 10 random meals from TheMealDB
+    const container = document.getElementById('recipes-container');
+    const tabs = document.querySelector('.sort-tabs');
+    const searchInput = document.getElementById('filter-search');
+    const areaSelect = document.getElementById('filter-area');
+    const categorySelect = document.getElementById('filter-category');
+    const clearBtn = document.getElementById('filter-clear');
+    const resultsCount = document.getElementById('results-count');
+
+    let mealsData = [];
+    let activeSort = 'random';
+
+    function shuffle(arr) {
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+    }
+
+    function createCard(meal) {
+        const div = document.createElement('div');
+        div.className = 'recipe-card';
+        div.innerHTML = `
+            <img src="${meal.strMealThumb}" alt="${meal.strMeal}" loading="lazy">
+            <div class="card-body">
+                <div>
+                    <h3>${meal.strMeal}</h3>
+                    <p class="meta">${meal.strArea || 'Unknown'} • ${meal.strCategory || 'Uncategorized'}</p>
+                </div>
+                <div class="view-note">Click the card to view details on TheMealDB</div>
+            </div>
+        `;
+        // optional: clicking opens the meal on TheMealDB
+        div.addEventListener('click', () => {
+            if (meal.idMeal) window.open(`https://www.themealdb.com/meal.php?c=${meal.idMeal}`, '_blank');
+        });
+        container.appendChild(div);
+    }
+
+    function applyFilters(list) {
+        const q = (searchInput.value || '').trim().toLowerCase();
+        const area = areaSelect.value;
+        const category = categorySelect.value;
+        return list.filter(m => {
+            if (q && !(m.strMeal || '').toLowerCase().includes(q)) return false;
+            if (area && (m.strArea || '') !== area) return false;
+            if (category && (m.strCategory || '') !== category) return false;
+            return true;
+        });
+    }
+
+    function renderMeals() {
+        container.innerHTML = '';
+        if (!mealsData || !mealsData.length) {
+            resultsCount.textContent = '';
+            container.textContent = 'No recipes found.';
+            return;
+        }
+        let list = mealsData.slice();
+        // apply filters
+        const filtered = applyFilters(list);
+
+        // apply sorting on the filtered list
+        switch (activeSort) {
+            case 'name-asc':
+                filtered.sort((a, b) => (a.strMeal || '').localeCompare(b.strMeal || ''));
+                break;
+            case 'name-desc':
+                filtered.sort((a, b) => (b.strMeal || '').localeCompare(a.strMeal || ''));
+                break;
+            case 'area':
+                filtered.sort((a, b) => (a.strArea || '').localeCompare(b.strArea || ''));
+                break;
+            case 'category':
+                filtered.sort((a, b) => (a.strCategory || '').localeCompare(b.strCategory || ''));
+                break;
+            case 'random':
+            default:
+                shuffle(filtered);
+                break;
+        }
+
+        resultsCount.textContent = `Showing ${Math.min(filtered.length, 16)} of ${filtered.length} result(s)`;
+
+        if (filtered.length === 0) {
+            container.textContent = 'No recipes match your filters.';
+            return;
+        }
+
+        filtered.slice(0, 16).forEach(createCard);
+    }
+
+    function populateFilters() {
+        const areas = Array.from(new Set(mealsData.map(m => m.strArea).filter(Boolean))).sort();
+        const cats = Array.from(new Set(mealsData.map(m => m.strCategory).filter(Boolean))).sort();
+        // clear existing options except first
+        function fill(select, items) {
+            select.querySelectorAll('option:not([value=""])').forEach(o => o.remove());
+            items.forEach(it => {
+                const opt = document.createElement('option');
+                opt.value = it;
+                opt.textContent = it;
+                select.appendChild(opt);
+            });
+        }
+        fill(areaSelect, areas);
+        fill(categorySelect, cats);
+    }
+
+    // fetch and initialize
     fetch('https://www.themealdb.com/api/json/v1/1/search.php?s=')
         .then(response => response.json())
         .then(data => {
-            const container = document.getElementById('recipes-container');
-            if (!data.meals) {
-                container.textContent = 'No recipes found.';
-                return;
-            }
-            data.meals.slice(0, 16).forEach(meal => {
-                const div = document.createElement('div');
-                div.className = 'recipe-card';
-                div.innerHTML = `
-                    <h2>${meal.strMeal}</h2>
-                    <img src="${meal.strMealThumb}" alt="${meal.strMeal}" width="200">
-                    <p>${meal.strArea} - ${meal.strCategory}</p>
-                `;
-                container.appendChild(div);
-            });
+            mealsData = data.meals || [];
+            populateFilters();
+            renderMeals();
         })
         .catch(() => {
-            document.getElementById('recipes-container').textContent = 'Failed to load recipes.';
+            container.textContent = 'Failed to load recipes.';
         });
+
+    // tab/tap handling
+    if (tabs) {
+        tabs.addEventListener('click', (e) => {
+            const btn = e.target.closest('button[data-sort]');
+            if (!btn) return;
+            activeSort = btn.dataset.sort;
+            tabs.querySelectorAll('button').forEach(b => b.classList.toggle('active', b === btn));
+            renderMeals();
+        });
+    }
+
+    // filter events
+    [searchInput, areaSelect, categorySelect].forEach(el => {
+        if (!el) return;
+        el.addEventListener('input', () => renderMeals());
+        el.addEventListener('change', () => renderMeals());
+    });
+
+    if (clearBtn) {
+        clearBtn.addEventListener('click', () => {
+            if (searchInput) searchInput.value = '';
+            if (areaSelect) areaSelect.value = '';
+            if (categorySelect) categorySelect.value = '';
+            // Optionally reset sort to random
+            activeSort = 'random';
+            tabs.querySelectorAll('button').forEach(b => b.classList.toggle('active', b.dataset.sort === 'random'));
+            renderMeals();
+        });
+    }
 });

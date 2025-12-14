@@ -1,17 +1,45 @@
 {% extends "base.html" %}
 
-{% block title %}Meat Type{% endblock %}
+{% block title %}Recipes{% endblock %}
 
 {% block content %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/recipes.css') }}">
 <body>
-    <h1 class="recipe-title">Need some Inspiration?</h1>
-    <h2 class = "recipe-subtitle">Choose from our selection of delicious recipes!</h2>
-    <div class="recipe-wrapper">
-        <div id="recipes-container"></div>
+    <h1 class="recipe-title">Need some Inspiration!</h1>
+    <h2 class="recipe-subtitle">Choose from our selection of delicious recipes!</h2>
+
+    <!-- filter bar -->
+    <div class="filter-bar">
+        <input id="filter-search" type="search" placeholder="Search recipes by name…" aria-label="Search recipes">
+        <select id="filter-area" aria-label="Filter by area">
+            <option value="">All areas</option>
+        </select>
+        <select id="filter-category" aria-label="Filter by category">
+            <option value="">All categories</option>
+        </select>
+        <button id="filter-clear" type="button" class="btn-clear">Clear</button>
     </div>
+
+    <!-- sorting tabs -->
+    <div class="sort-wrapper">
+        <div class="sort-tabs" role="tablist" aria-label="Sort recipes">
+            <button data-sort="random" class="active" role="tab">Random</button>
+            <button data-sort="name-asc" role="tab">Name A–Z</button>
+            <button data-sort="name-desc" role="tab">Name Z–A</button>
+            <button data-sort="area" role="tab">Area</button>
+            <button data-sort="category" role="tab">Category</button>
+        </div>
+    </div>
+
+    <div class="recipe-wrapper">
+        <div class="results-row">
+            <div id="results-count" class="results-count"></div>
+        </div>
+        <div id="recipes-container" class="recipes-grid"></div>
+    </div>
+
     <script src="{{ url_for('static', filename='js/recipes.js') }}"></script>
-      {% endblock %}
-    
+{% endblock %}
+
 </body>
 
